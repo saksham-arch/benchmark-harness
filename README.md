@@ -17,3 +17,8 @@ conditions before treating comparisons as evidence.
 
 Run tests with `python -m unittest discover -s tests`.
 
+Zero-argument callables can also be benchmarked from the command line:
+
+```bash
+PYTHONPATH=src python3 -m benchmark_harness package.module:function --warmups 3 --iterations 20
+```

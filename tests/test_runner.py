@@ -2,6 +2,7 @@ import json
 import unittest
 
 from benchmark_harness import run
+from benchmark_harness.__main__ import load_target
 
 
 class FakeClock:
@@ -36,6 +37,14 @@ class RunnerTests(unittest.TestCase):
             run(lambda: None, warmups=-1)
         with self.assertRaises(ValueError):
             run(lambda: None, iterations=0)
+
+    def test_loads_callable_target(self) -> None:
+        target = load_target("json:loads")
+        self.assertTrue(callable(target))
+
+    def test_rejects_invalid_target_specification(self) -> None:
+        with self.assertRaises(ValueError):
+            load_target("missing_separator")
 
 
 if __name__ == "__main__":
