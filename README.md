@@ -15,6 +15,9 @@ This harness measures wall-clock duration with `time.perf_counter_ns`. It does
 not control CPU frequency, process affinity, or background load; document those
 conditions before treating comparisons as evidence.
 
+Pass a `setup` callable when every iteration needs fresh state. Setup runs
+before warmups and measured iterations but remains outside the timed interval.
+
 Run tests with `python -m unittest discover -s tests`.
 
 Zero-argument callables can also be benchmarked from the command line:

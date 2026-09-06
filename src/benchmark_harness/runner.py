@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 import json
 from statistics import fmean, median
 from time import perf_counter_ns
-from typing import Callable, TypeVar
+from typing import Callable, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -26,6 +26,7 @@ def run(
     *,
     warmups: int = 3,
     iterations: int = 10,
+    setup: Optional[Callable[[], None]] = None,
     clock: Callable[[], int] = perf_counter_ns,
 ) -> BenchmarkResult:
     if warmups < 0:
@@ -34,10 +35,14 @@ def run(
         raise ValueError("iterations must be positive")
 
     for _ in range(warmups):
+        if setup is not None:
+            setup()
         operation()
 
     samples: list[int] = []
     for _ in range(iterations):
+        if setup is not None:
+            setup()
         started = clock()
         operation()
         elapsed = clock() - started
@@ -54,4 +59,3 @@ def run(
         mean_ns=fmean(samples),
         maximum_ns=max(samples),
     )
-

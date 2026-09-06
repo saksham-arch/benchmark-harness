@@ -46,6 +46,28 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             load_target("missing_separator")
 
+    def test_runs_setup_before_each_iteration_outside_timing(self) -> None:
+        events: list[str] = []
+
+        def setup() -> None:
+            events.append("setup")
+
+        def operation() -> None:
+            events.append("operation")
+
+        result = run(
+            operation,
+            warmups=1,
+            iterations=2,
+            setup=setup,
+            clock=FakeClock([0, 5, 10, 15]),
+        )
+        self.assertEqual(
+            events,
+            ["setup", "operation", "setup", "operation", "setup", "operation"],
+        )
+        self.assertEqual(result.samples_ns, (5, 5))
+
 
 if __name__ == "__main__":
     unittest.main()
