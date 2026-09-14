@@ -21,15 +21,16 @@ def main() -> None:
     parser.add_argument("target", help="module:function")
     parser.add_argument("--warmups", type=int, default=3)
     parser.add_argument("--iterations", type=int, default=10)
+    parser.add_argument("--operations-per-sample", type=int, default=1)
     args = parser.parse_args()
     result = run(
         load_target(args.target),
         warmups=args.warmups,
         iterations=args.iterations,
+        operations_per_sample=args.operations_per_sample,
     )
     print(result.to_json())
 
 
 if __name__ == "__main__":
     main()
-
