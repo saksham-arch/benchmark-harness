@@ -23,7 +23,9 @@ For operations close to the timer's practical resolution, set
 `samples_ns_per_operation` for normalized values. Setup still runs once per
 sample, not once per operation, so batching is only appropriate when every
 operation in a batch can share the prepared state. Raw batch durations remain
-available in `samples_ns`.
+available in `samples_ns`. JSON output includes both the raw samples and derived
+per-operation samples, median, and mean; normalization divides each batch by
+its configured operation count and does not remove measurement overhead.
 
 Run tests with `python -m unittest discover -s tests`.
 

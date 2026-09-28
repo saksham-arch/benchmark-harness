@@ -89,7 +89,13 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result.operations_per_sample, 4)
         self.assertEqual(result.samples_ns, (20, 12))
         self.assertEqual(result.samples_ns_per_operation, (5.0, 3.0))
-        self.assertEqual(json.loads(result.to_json())["operations_per_sample"], 4)
+        self.assertEqual(result.median_ns_per_operation, 4.0)
+        self.assertEqual(result.mean_ns_per_operation, 4.0)
+        payload = json.loads(result.to_json())
+        self.assertEqual(payload["operations_per_sample"], 4)
+        self.assertEqual(payload["samples_ns_per_operation"], [5.0, 3.0])
+        self.assertEqual(payload["median_ns_per_operation"], 4.0)
+        self.assertEqual(payload["mean_ns_per_operation"], 4.0)
 
 
 if __name__ == "__main__":

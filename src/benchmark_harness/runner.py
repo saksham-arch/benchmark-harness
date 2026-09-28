@@ -24,8 +24,22 @@ class BenchmarkResult:
             sample / self.operations_per_sample for sample in self.samples_ns
         )
 
+    @property
+    def median_ns_per_operation(self) -> float:
+        return self.median_ns / self.operations_per_sample
+
+    @property
+    def mean_ns_per_operation(self) -> float:
+        return self.mean_ns / self.operations_per_sample
+
     def to_json(self) -> str:
-        return json.dumps(asdict(self), indent=2)
+        payload = asdict(self)
+        payload.update(
+            samples_ns_per_operation=self.samples_ns_per_operation,
+            median_ns_per_operation=self.median_ns_per_operation,
+            mean_ns_per_operation=self.mean_ns_per_operation,
+        )
+        return json.dumps(payload, indent=2)
 
 
 def run(
