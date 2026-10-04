@@ -97,6 +97,56 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(payload["median_ns_per_operation"], 4.0)
         self.assertEqual(payload["mean_ns_per_operation"], 4.0)
 
+    def test_runs_teardown_after_each_sample_outside_timing(self) -> None:
+        events: list[str] = []
+
+        def setup() -> None:
+            events.append("setup")
+
+        def operation() -> None:
+            events.append("operation")
+
+        def teardown() -> None:
+            events.append("teardown")
+
+        run(
+            operation,
+            warmups=1,
+            iterations=2,
+            setup=setup,
+            teardown=teardown,
+            clock=FakeClock([0, 5, 10, 15]),
+        )
+
+        self.assertEqual(
+            events,
+            [
+                "setup",
+                "operation",
+                "teardown",
+                "setup",
+                "operation",
+                "teardown",
+                "setup",
+                "operation",
+                "teardown",
+            ],
+        )
+
+    def test_runs_teardown_when_operation_fails(self) -> None:
+        teardown_calls = 0
+
+        def fail() -> None:
+            raise RuntimeError("operation failed")
+
+        def teardown() -> None:
+            nonlocal teardown_calls
+            teardown_calls += 1
+
+        with self.assertRaisesRegex(RuntimeError, "operation failed"):
+            run(fail, warmups=1, teardown=teardown)
+        self.assertEqual(teardown_calls, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

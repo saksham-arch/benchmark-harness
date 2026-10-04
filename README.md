@@ -17,6 +17,10 @@ conditions before treating comparisons as evidence.
 
 Pass a `setup` callable when every iteration needs fresh state. Setup runs
 before warmups and measured iterations but remains outside the timed interval.
+Pass a `teardown` callable to release per-sample resources after every warmup
+and measured sample. Teardown also remains outside timing and runs in a
+`finally` block when the operation raises. Setup and teardown each run once per
+sample, not once per operation in a batch.
 
 For operations close to the timer's practical resolution, set
 `operations_per_sample` to measure a batch and inspect

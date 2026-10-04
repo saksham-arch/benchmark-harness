@@ -49,6 +49,7 @@ def run(
     iterations: int = 10,
     operations_per_sample: int = 1,
     setup: Optional[Callable[[], None]] = None,
+    teardown: Optional[Callable[[], None]] = None,
     clock: Callable[[], int] = perf_counter_ns,
 ) -> BenchmarkResult:
     if warmups < 0:
@@ -61,17 +62,25 @@ def run(
     for _ in range(warmups):
         if setup is not None:
             setup()
-        for _ in range(operations_per_sample):
-            operation()
+        try:
+            for _ in range(operations_per_sample):
+                operation()
+        finally:
+            if teardown is not None:
+                teardown()
 
     samples: list[int] = []
     for _ in range(iterations):
         if setup is not None:
             setup()
-        started = clock()
-        for _ in range(operations_per_sample):
-            operation()
-        elapsed = clock() - started
+        try:
+            started = clock()
+            for _ in range(operations_per_sample):
+                operation()
+            elapsed = clock() - started
+        finally:
+            if teardown is not None:
+                teardown()
         if elapsed < 0:
             raise ValueError("clock must be monotonic")
         samples.append(elapsed)
