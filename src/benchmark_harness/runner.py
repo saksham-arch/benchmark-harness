@@ -15,6 +15,7 @@ class BenchmarkResult:
     samples_ns: tuple[int, ...]
     minimum_ns: int
     median_ns: float
+    median_absolute_deviation_ns: float
     mean_ns: float
     maximum_ns: int
 
@@ -32,12 +33,19 @@ class BenchmarkResult:
     def mean_ns_per_operation(self) -> float:
         return self.mean_ns / self.operations_per_sample
 
+    @property
+    def median_absolute_deviation_ns_per_operation(self) -> float:
+        return self.median_absolute_deviation_ns / self.operations_per_sample
+
     def to_json(self) -> str:
         payload = asdict(self)
         payload.update(
             samples_ns_per_operation=self.samples_ns_per_operation,
             median_ns_per_operation=self.median_ns_per_operation,
             mean_ns_per_operation=self.mean_ns_per_operation,
+            median_absolute_deviation_ns_per_operation=(
+                self.median_absolute_deviation_ns_per_operation
+            ),
         )
         return json.dumps(payload, indent=2)
 
@@ -85,13 +93,17 @@ def run(
             raise ValueError("clock must be monotonic")
         samples.append(elapsed)
 
+    sample_median = median(samples)
     return BenchmarkResult(
         warmups=warmups,
         iterations=iterations,
         operations_per_sample=operations_per_sample,
         samples_ns=tuple(samples),
         minimum_ns=min(samples),
-        median_ns=median(samples),
+        median_ns=sample_median,
+        median_absolute_deviation_ns=median(
+            abs(sample - sample_median) for sample in samples
+        ),
         mean_ns=fmean(samples),
         maximum_ns=max(samples),
     )

@@ -4,6 +4,12 @@ A minimal Python benchmark runner with explicit warmup and measured phases.
 It reports raw samples alongside summary statistics so results remain
 inspectable.
 
+Results include median absolute deviation (MAD) alongside minimum, median,
+mean, and maximum duration. MAD is the median distance from the sample median,
+so one extreme sample has less influence than it would on standard deviation.
+A low MAD does not establish a stable environment: retain the raw samples and
+inspect the full range and experimental conditions.
+
 ```python
 from benchmark_harness import run
 
@@ -29,7 +35,8 @@ sample, not once per operation, so batching is only appropriate when every
 operation in a batch can share the prepared state. Raw batch durations remain
 available in `samples_ns`. JSON output includes both the raw samples and derived
 per-operation samples, median, and mean; normalization divides each batch by
-its configured operation count and does not remove measurement overhead.
+its configured operation count and does not remove measurement overhead. The
+normalized output also includes MAD per operation.
 
 Run tests with `python -m unittest discover -s tests`.
 

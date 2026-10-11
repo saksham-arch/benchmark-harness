@@ -30,6 +30,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(calls, 5)
         self.assertEqual(result.samples_ns, (10, 15, 30))
         self.assertEqual(result.median_ns, 15)
+        self.assertEqual(result.median_absolute_deviation_ns, 5)
         self.assertEqual(json.loads(result.to_json())["iterations"], 3)
 
     def test_validates_configuration(self) -> None:
@@ -91,11 +92,18 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result.samples_ns_per_operation, (5.0, 3.0))
         self.assertEqual(result.median_ns_per_operation, 4.0)
         self.assertEqual(result.mean_ns_per_operation, 4.0)
+        self.assertEqual(result.median_absolute_deviation_ns, 4.0)
+        self.assertEqual(result.median_absolute_deviation_ns_per_operation, 1.0)
         payload = json.loads(result.to_json())
         self.assertEqual(payload["operations_per_sample"], 4)
         self.assertEqual(payload["samples_ns_per_operation"], [5.0, 3.0])
         self.assertEqual(payload["median_ns_per_operation"], 4.0)
         self.assertEqual(payload["mean_ns_per_operation"], 4.0)
+        self.assertEqual(payload["median_absolute_deviation_ns"], 4.0)
+        self.assertEqual(
+            payload["median_absolute_deviation_ns_per_operation"],
+            1.0,
+        )
 
     def test_runs_teardown_after_each_sample_outside_timing(self) -> None:
         events: list[str] = []
