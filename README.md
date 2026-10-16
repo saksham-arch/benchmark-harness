@@ -7,8 +7,10 @@ inspectable.
 Results include median absolute deviation (MAD) alongside minimum, median,
 mean, and maximum duration. MAD is the median distance from the sample median,
 so one extreme sample has less influence than it would on standard deviation.
-A low MAD does not establish a stable environment: retain the raw samples and
-inspect the full range and experimental conditions.
+`relative_median_absolute_deviation` divides MAD by the median so dispersion can
+be compared across different duration scales; it is `null` when the median is
+zero. A low relative or absolute MAD does not establish a stable environment:
+retain the raw samples and inspect the full range and experimental conditions.
 
 ```python
 from benchmark_harness import run

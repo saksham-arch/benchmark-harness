@@ -31,7 +31,10 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result.samples_ns, (10, 15, 30))
         self.assertEqual(result.median_ns, 15)
         self.assertEqual(result.median_absolute_deviation_ns, 5)
-        self.assertEqual(json.loads(result.to_json())["iterations"], 3)
+        self.assertEqual(result.relative_median_absolute_deviation, 1 / 3)
+        payload = json.loads(result.to_json())
+        self.assertEqual(payload["iterations"], 3)
+        self.assertEqual(payload["relative_median_absolute_deviation"], 1 / 3)
 
     def test_validates_configuration(self) -> None:
         with self.assertRaises(ValueError):
@@ -94,6 +97,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result.mean_ns_per_operation, 4.0)
         self.assertEqual(result.median_absolute_deviation_ns, 4.0)
         self.assertEqual(result.median_absolute_deviation_ns_per_operation, 1.0)
+        self.assertEqual(result.relative_median_absolute_deviation, 0.25)
         payload = json.loads(result.to_json())
         self.assertEqual(payload["operations_per_sample"], 4)
         self.assertEqual(payload["samples_ns_per_operation"], [5.0, 3.0])
@@ -103,6 +107,19 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(
             payload["median_absolute_deviation_ns_per_operation"],
             1.0,
+        )
+
+    def test_zero_median_has_no_relative_dispersion(self) -> None:
+        result = run(
+            lambda: None,
+            warmups=0,
+            iterations=2,
+            clock=FakeClock([0, 0, 0, 0]),
+        )
+
+        self.assertIsNone(result.relative_median_absolute_deviation)
+        self.assertIsNone(
+            json.loads(result.to_json())["relative_median_absolute_deviation"]
         )
 
     def test_runs_teardown_after_each_sample_outside_timing(self) -> None:

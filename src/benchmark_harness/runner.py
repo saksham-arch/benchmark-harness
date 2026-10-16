@@ -37,6 +37,12 @@ class BenchmarkResult:
     def median_absolute_deviation_ns_per_operation(self) -> float:
         return self.median_absolute_deviation_ns / self.operations_per_sample
 
+    @property
+    def relative_median_absolute_deviation(self) -> Optional[float]:
+        if self.median_ns == 0:
+            return None
+        return self.median_absolute_deviation_ns / self.median_ns
+
     def to_json(self) -> str:
         payload = asdict(self)
         payload.update(
@@ -45,6 +51,9 @@ class BenchmarkResult:
             mean_ns_per_operation=self.mean_ns_per_operation,
             median_absolute_deviation_ns_per_operation=(
                 self.median_absolute_deviation_ns_per_operation
+            ),
+            relative_median_absolute_deviation=(
+                self.relative_median_absolute_deviation
             ),
         )
         return json.dumps(payload, indent=2)
