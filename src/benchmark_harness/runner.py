@@ -43,6 +43,12 @@ class BenchmarkResult:
             return None
         return self.median_absolute_deviation_ns / self.median_ns
 
+    @property
+    def operations_per_second(self) -> Optional[float]:
+        if self.mean_ns_per_operation == 0:
+            return None
+        return 1_000_000_000 / self.mean_ns_per_operation
+
     def to_json(self) -> str:
         payload = asdict(self)
         payload.update(
@@ -55,6 +61,7 @@ class BenchmarkResult:
             relative_median_absolute_deviation=(
                 self.relative_median_absolute_deviation
             ),
+            operations_per_second=self.operations_per_second,
         )
         return json.dumps(payload, indent=2)
 

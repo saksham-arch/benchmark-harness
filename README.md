@@ -40,7 +40,13 @@ per-operation samples, median, and mean; normalization divides each batch by
 its configured operation count and does not remove measurement overhead. The
 normalized output also includes MAD per operation.
 
-Run tests with `python -m unittest discover -s tests`.
+JSON output reports `operations_per_second`, derived from the mean normalized
+duration. It is `null` when the measured mean is zero. This is the reciprocal
+rate of sequential work inside this process; it is not concurrent throughput,
+capacity under load, or a production service claim. Timer overhead and batching
+assumptions remain part of the measurement.
+
+Run tests with `PYTHONPATH=src python3 -m unittest discover -s tests`.
 
 Zero-argument callables can also be benchmarked from the command line:
 
