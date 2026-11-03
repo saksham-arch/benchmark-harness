@@ -1,7 +1,8 @@
 from dataclasses import asdict, dataclass
 import json
+from math import isfinite
 from statistics import fmean, median
-from time import perf_counter_ns
+from time import perf_counter_ns, sleep
 from typing import Callable, Optional, TypeVar
 
 T = TypeVar("T")
@@ -72,9 +73,11 @@ def run(
     warmups: int = 3,
     iterations: int = 10,
     operations_per_sample: int = 1,
+    pause_seconds: float = 0,
     setup: Optional[Callable[[], None]] = None,
     teardown: Optional[Callable[[], None]] = None,
     clock: Callable[[], int] = perf_counter_ns,
+    sleeper: Callable[[float], None] = sleep,
 ) -> BenchmarkResult:
     if warmups < 0:
         raise ValueError("warmups must be non-negative")
@@ -82,6 +85,8 @@ def run(
         raise ValueError("iterations must be positive")
     if operations_per_sample < 1:
         raise ValueError("operations_per_sample must be positive")
+    if not isfinite(pause_seconds) or pause_seconds < 0:
+        raise ValueError("pause_seconds must be finite and non-negative")
 
     for _ in range(warmups):
         if setup is not None:
@@ -94,7 +99,7 @@ def run(
                 teardown()
 
     samples: list[int] = []
-    for _ in range(iterations):
+    for sample_index in range(iterations):
         if setup is not None:
             setup()
         try:
@@ -108,6 +113,8 @@ def run(
         if elapsed < 0:
             raise ValueError("clock must be monotonic")
         samples.append(elapsed)
+        if pause_seconds and sample_index + 1 < iterations:
+            sleeper(pause_seconds)
 
     sample_median = median(samples)
     return BenchmarkResult(

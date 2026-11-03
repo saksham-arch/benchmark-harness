@@ -43,6 +43,32 @@ class RunnerTests(unittest.TestCase):
             run(lambda: None, iterations=0)
         with self.assertRaises(ValueError):
             run(lambda: None, operations_per_sample=0)
+        for pause in (-1, float("nan"), float("inf")):
+            with self.subTest(pause=pause), self.assertRaises(ValueError):
+                run(lambda: None, pause_seconds=pause)
+
+    def test_pauses_between_measured_samples_after_teardown(self) -> None:
+        events: list[str] = []
+        result = run(
+            lambda: events.append("operation"),
+            warmups=1,
+            iterations=3,
+            pause_seconds=0.25,
+            teardown=lambda: events.append("teardown"),
+            sleeper=lambda seconds: events.append(f"pause {seconds}"),
+            clock=FakeClock([0, 2, 3, 5, 6, 9]),
+        )
+
+        self.assertEqual(result.samples_ns, (2, 2, 3))
+        self.assertEqual(
+            events,
+            [
+                "operation", "teardown",
+                "operation", "teardown", "pause 0.25",
+                "operation", "teardown", "pause 0.25",
+                "operation", "teardown",
+            ],
+        )
 
     def test_loads_callable_target(self) -> None:
         target = load_target("json:loads")

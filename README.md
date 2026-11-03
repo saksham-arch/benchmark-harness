@@ -23,6 +23,12 @@ This harness measures wall-clock duration with `time.perf_counter_ns`. It does
 not control CPU frequency, process affinity, or background load; document those
 conditions before treating comparisons as evidence.
 
+`pause_seconds` waits between measured samples, after teardown and outside the
+timed interval. It does not pause after the final sample or between warmups.
+The pause can reduce back-to-back load, but it does not guarantee a particular
+temperature, clock frequency, or independent samples. The CLI exposes the same
+option as `--pause-seconds`.
+
 Pass a `setup` callable when every iteration needs fresh state. Setup runs
 before warmups and measured iterations but remains outside the timed interval.
 Pass a `teardown` callable to release per-sample resources after every warmup
