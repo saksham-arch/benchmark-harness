@@ -1,6 +1,6 @@
 from dataclasses import asdict, dataclass
 import json
-from math import isfinite
+from math import ceil, isfinite
 from statistics import fmean, median
 from time import perf_counter_ns, sleep
 from typing import Callable, Optional, TypeVar
@@ -16,6 +16,7 @@ class BenchmarkResult:
     samples_ns: tuple[int, ...]
     minimum_ns: int
     median_ns: float
+    p95_ns: int
     median_absolute_deviation_ns: float
     mean_ns: float
     maximum_ns: int
@@ -33,6 +34,10 @@ class BenchmarkResult:
     @property
     def mean_ns_per_operation(self) -> float:
         return self.mean_ns / self.operations_per_sample
+
+    @property
+    def p95_ns_per_operation(self) -> float:
+        return self.p95_ns / self.operations_per_sample
 
     @property
     def median_absolute_deviation_ns_per_operation(self) -> float:
@@ -56,6 +61,7 @@ class BenchmarkResult:
             samples_ns_per_operation=self.samples_ns_per_operation,
             median_ns_per_operation=self.median_ns_per_operation,
             mean_ns_per_operation=self.mean_ns_per_operation,
+            p95_ns_per_operation=self.p95_ns_per_operation,
             median_absolute_deviation_ns_per_operation=(
                 self.median_absolute_deviation_ns_per_operation
             ),
@@ -124,6 +130,7 @@ def run(
         samples_ns=tuple(samples),
         minimum_ns=min(samples),
         median_ns=sample_median,
+        p95_ns=sorted(samples)[ceil(0.95 * len(samples)) - 1],
         median_absolute_deviation_ns=median(
             abs(sample - sample_median) for sample in samples
         ),

@@ -30,6 +30,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(calls, 5)
         self.assertEqual(result.samples_ns, (10, 15, 30))
         self.assertEqual(result.median_ns, 15)
+        self.assertEqual(result.p95_ns, 30)
         self.assertEqual(result.median_absolute_deviation_ns, 5)
         self.assertEqual(result.relative_median_absolute_deviation, 1 / 3)
         payload = json.loads(result.to_json())
@@ -121,6 +122,8 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(result.samples_ns_per_operation, (5.0, 3.0))
         self.assertEqual(result.median_ns_per_operation, 4.0)
         self.assertEqual(result.mean_ns_per_operation, 4.0)
+        self.assertEqual(result.p95_ns, 20)
+        self.assertEqual(result.p95_ns_per_operation, 5.0)
         self.assertEqual(result.median_absolute_deviation_ns, 4.0)
         self.assertEqual(result.median_absolute_deviation_ns_per_operation, 1.0)
         self.assertEqual(result.relative_median_absolute_deviation, 0.25)
@@ -130,6 +133,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(payload["samples_ns_per_operation"], [5.0, 3.0])
         self.assertEqual(payload["median_ns_per_operation"], 4.0)
         self.assertEqual(payload["mean_ns_per_operation"], 4.0)
+        self.assertEqual(payload["p95_ns_per_operation"], 5.0)
         self.assertEqual(payload["median_absolute_deviation_ns"], 4.0)
         self.assertEqual(
             payload["median_absolute_deviation_ns_per_operation"],

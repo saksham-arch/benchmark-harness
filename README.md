@@ -46,6 +46,11 @@ per-operation samples, median, and mean; normalization divides each batch by
 its configured operation count and does not remove measurement overhead. The
 normalized output also includes MAD per operation.
 
+The nearest-rank `p95_ns` retains a slower observed batch duration, and
+`p95_ns_per_operation` divides that batch by the configured operation count.
+With few samples p95 is coarse; normalized values still include loop and timer
+overhead and do not describe a single isolated invocation.
+
 JSON output reports `operations_per_second`, derived from the mean normalized
 duration. It is `null` when the measured mean is zero. This is the reciprocal
 rate of sequential work inside this process; it is not concurrent throughput,
