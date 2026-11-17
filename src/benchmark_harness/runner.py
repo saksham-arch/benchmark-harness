@@ -95,9 +95,9 @@ def run(
         raise ValueError("pause_seconds must be finite and non-negative")
 
     for _ in range(warmups):
-        if setup is not None:
-            setup()
         try:
+            if setup is not None:
+                setup()
             for _ in range(operations_per_sample):
                 operation()
         finally:
@@ -106,9 +106,9 @@ def run(
 
     samples: list[int] = []
     for sample_index in range(iterations):
-        if setup is not None:
-            setup()
         try:
+            if setup is not None:
+                setup()
             started = clock()
             for _ in range(operations_per_sample):
                 operation()

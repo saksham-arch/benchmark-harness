@@ -206,6 +206,22 @@ class RunnerTests(unittest.TestCase):
             run(fail, warmups=1, teardown=teardown)
         self.assertEqual(teardown_calls, 1)
 
+    def test_runs_teardown_when_setup_fails(self) -> None:
+        events: list[str] = []
+
+        def fail_setup() -> None:
+            events.append("setup")
+            raise RuntimeError("setup failed")
+
+        with self.assertRaisesRegex(RuntimeError, "setup failed"):
+            run(
+                lambda: events.append("operation"),
+                warmups=0,
+                setup=fail_setup,
+                teardown=lambda: events.append("teardown"),
+            )
+        self.assertEqual(events, ["setup", "teardown"])
+
 
 if __name__ == "__main__":
     unittest.main()
